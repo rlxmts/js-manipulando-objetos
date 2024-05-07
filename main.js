@@ -6,7 +6,10 @@ const lista = document.querySelector('#lista-de-itens');
 const listaComprados = document.querySelector('#itens-comprados');
 
 
-criaItemDaLista();
+function atualizaLocalStorage(){
+    localStorage.setItem("ListaDeCompra", JSON.stringify(listaDeItens)) ;
+}
+
 
 form.addEventListener('submit', (e)=>{
     e.preventDefault();
@@ -15,14 +18,10 @@ form.addEventListener('submit', (e)=>{
     itens.focus();
 })
 
-function atualizaLocalStorage(){
-    localStorage.setItem("ListaDeCompra", JSON.stringify(listaDeItens)) ;
-}
-
 function salvarItem(){
     const itemNovo = itens.value;
     const verificaDuplicado = listaDeItens.some( (item) => item.nome === itemNovo.toLowerCase());
-
+    
     if(verificaDuplicado){
         alert('Ops, esse produto ja esta na sua lista.');
         return
@@ -35,48 +34,63 @@ function salvarItem(){
     }   
     itens.value = '';
 }
+criaItemDaLista();
 
 function criaItemDaLista(){
+    
     lista.innerHTML = '';
     listaComprados.innerHTML = '';
-
+    
     listaDeItens.forEach( (item, index) =>{      
         
         if(item.valor){
             listaComprados.innerHTML += `
             <li class="item-compra is-flex is-justify-content-space-between" data-value="${index}">
-                <div>
-                    <input type="checkbox" checked id="check" class="is-clickable" />
-                    <span class="itens-comprados is-size-5">${item.nome}</span>
-                </div>
-                <div>
-                    <i class="fa-solid fa-trash is-clickable deletar"></i>
-                </div>
+            <div>
+            <input type="checkbox" checked class="is-clickable" />
+            <span class="itens-comprados is-size-5">${item.nome}</span>
+            </div>
+            <div>
+            <i class="fa-solid fa-trash is-clickable deletar"></i>
+            </div>
             </li>
             `
         }else{
             lista.innerHTML += `
             <li class="item-compra is-flex is-justify-content-space-between" data-value="${index}">
-                <div>
-                    <input type="checkbox" id="check" class="is-clickable" />
-                    <input type="text" class="is-size-5" value="${item.nome}"></input>
-                </div>
-                <div>
-                    <i class="fa-solid fa-trash is-clickable deletar"></i>
-                </div>
+            <div>
+            <input type="checkbox" class="is-clickable" />
+            <input type="text" class="is-size-5" value="${item.nome}"></input>
+            </div>
+            <div>
+            <i class="fa-regular fa-floppy-disk is-clickable"></i><i class="fa-regular is-clickable fa-pen-to-square editar"></i>
+            <i class="fa-solid fa-trash is-clickable deletar"></i>
+            </div>
             </li>
             `
         }
     });
-}
 
-const listaBtCheck = document.querySelectorAll('#check');
-
-listaBtCheck.forEach( (input)=>{
-    input.addEventListener('click', (e)=>{
-        const indice = e.target.parentElement.parentElement.getAttribute('data-value');
-        listaDeItens[indice].valor = e.target.checked;           
-        console.log(listaDeItens)
-        //criaItemDaLista();
+    const listaBtCheck = document.querySelectorAll('input[type="checkbox"]');
+    
+    listaBtCheck.forEach( (input) =>{
+        input.addEventListener('click', (e)=>{
+            const indice = e.target.parentElement.parentElement.getAttribute('data-value');
+            listaDeItens[indice].valor = e.target.checked;
+            console.log(listaDeItens);          
+            criaItemDaLista();
+        });
+    
     });
-});
+
+    const listaBtLixo = document.querySelectorAll('.deletar');
+    
+    listaBtLixo.forEach( (item) => {
+        item.addEventListener('click', (e)=>{
+            const indice = e.target.parentElement.parentElement.getAttribute('data-value');
+            listaDeItens.splice(indice, 1);
+            criaItemDaLista();
+            atualizaLocalStorage()
+        });
+    })
+}
