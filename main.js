@@ -1,4 +1,5 @@
 let listaDeItens = JSON.parse( localStorage.getItem("ListaDeCompra")) || [];
+let itemParaEditar
 
 const form = document.querySelector('#form-itens');
 const itens = document.querySelector('#receber-item');
@@ -63,7 +64,8 @@ function criaItemDaLista(){
             <input type="text" class="is-size-5" value="${item.nome}"></input>
             </div>
             <div>
-            <i class="fa-regular fa-floppy-disk is-clickable"></i><i class="fa-regular is-clickable fa-pen-to-square editar"></i>
+            <button onclick="salvarItem()"><i class="fa-regular fa-floppy-disk is-clickable"></i></button>
+            <i class="fa-regular is-clickable fa-pen-to-square editar"></i>
             <i class="fa-solid fa-trash is-clickable deletar"></i>
             </div>
             </li>
@@ -71,8 +73,7 @@ function criaItemDaLista(){
         }
     });
 
-    const listaBtCheck = document.querySelectorAll('input[type="checkbox"]');
-    
+    const listaBtCheck = document.querySelectorAll('input[type="checkbox"]');    
     listaBtCheck.forEach( (input) =>{
         input.addEventListener('click', (e)=>{
             const indice = e.target.parentElement.parentElement.getAttribute('data-value');
@@ -83,14 +84,30 @@ function criaItemDaLista(){
     
     });
 
-    const listaBtLixo = document.querySelectorAll('.deletar');
-    
+    const listaBtLixo = document.querySelectorAll('.deletar');    
     listaBtLixo.forEach( (item) => {
         item.addEventListener('click', (e)=>{
             const indice = e.target.parentElement.parentElement.getAttribute('data-value');
             listaDeItens.splice(indice, 1);
             criaItemDaLista();
-            atualizaLocalStorage()
+            atualizaLocalStorage();
         });
     })
+
+    const iconeEditar = document.querySelectorAll('.editar');
+    iconeEditar.forEach( icone => {
+        icone.addEventListener('click', (e)=>{
+            itemParaEditar = e.target.parentElement.parentElement.getAttribute('data-value');
+            criaItemDaLista();
+        });
+    })
+    atualizaLocalStorage();
+}
+
+function salvarItem(){
+    const itemEditado = document.querySelector(`[data-value="${itemParaEditar}"] input[type='text']`);
+    listaDeItens[itemParaEditar].nome = itemEditado.value;
+    itemParaEditar = -1;
+    atualizaLocalStorage();
+    console.log(listaDeItens)
 }
